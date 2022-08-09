@@ -1,37 +1,41 @@
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
-    private static final String ROME_NUMBERS = "I|II|III|IV|V|VI|VII|VIII|IX|X";
-    private static final String ARAB_NUMBERS = "\\d|\\d\\d";
-    private static boolean isRome;
 
     public static void main(String[] args) {
         System.out.println("Input expression, please:");
         String expr = new Scanner(System.in).nextLine();
-        expr = expr.replaceAll("\\s+", "");
 
-        if (Pattern.matches("(" + ARAB_NUMBERS + ")[/+-/*/](" + ARAB_NUMBERS + ")", expr)) {
-            isRome = false;
-        } else if (Pattern.matches("(" + ROME_NUMBERS + ")[/+-/*/](" + ROME_NUMBERS + ")", expr)) {
-            isRome = true;
-        } else {
-            System.out.println("throws Error");
+        int cnt = 0;
+        int operIndex = -1;
+        for (int i = 0; i < expr.length() && cnt < 2; i++) {
+            if (expr.charAt(i) == '+' || expr.charAt(i) == '-' || expr.charAt(i) == '*' || expr.charAt(i) == '/') {
+                cnt++;
+                operIndex = i;
+            }
+        }
+
+        if (cnt != 1) {
+            System.out.println("throws Error: operation symbol not found (+,-,*,/) or found more then once");
             return;
         }
 
-        Pattern p = Pattern.compile("[/+-/*/]");
-        Matcher m = p.matcher(expr);
-        m.find();
-        int operIndex = m.start();
+        String leftArg = expr.substring(0, operIndex).trim();
+        String rightArg = expr.substring(operIndex + 1).trim();
+
+        boolean isRome;
+        if (romanToNumber(leftArg)>-1 && romanToNumber(rightArg)>-1) {
+            isRome = true;
+        } else if (leftArg.matches("[\\d]{1,2}") && rightArg.matches("[\\d]{1,2}")) {
+            isRome = false;
+        } else {
+            System.out.println("throws Error: not arabian or not roman both left & right part (between 1 and 10)");
+            return;
+        }
+
         String oper = expr.substring(operIndex, operIndex + 1);
-        String leftArg = expr.substring(0, operIndex);
-        String rightArg = expr.substring(operIndex + 1);
-
-        int leftNum = isRome ? romanToNumber(leftArg) : Integer.valueOf(leftArg);
-        int rightNum = isRome ? romanToNumber(rightArg) : Integer.valueOf(rightArg);
-
+        int leftNum = isRome ? romanToNumber(leftArg) : Integer.parseInt(leftArg);
+        int rightNum = isRome ? romanToNumber(rightArg) : Integer.parseInt(rightArg);
         if (leftNum < 1 || leftNum > 10 || rightNum < 1 || rightNum > 10) {
             System.out.println("Numbers must be between 1 and 10");
             return;
