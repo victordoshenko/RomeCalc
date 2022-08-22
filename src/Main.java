@@ -2,10 +2,8 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
-        System.out.println("Input expression, please:");
-        String expr = new Scanner(System.in).nextLine();
-
+    public static String calc(String expr)
+            throws Exception {
         int cnt = 0;
         int operIndex = -1;
         for (int i = 0; i < expr.length() && cnt < 2; i++) {
@@ -16,29 +14,26 @@ public class Main {
         }
 
         if (cnt != 1) {
-            System.out.println("throws Error: operation symbol not found (+,-,*,/) or found more then once");
-            return;
+            throw new Exception("operation symbol not found (+,-,*,/) or found more then once");
         }
 
         String leftArg = expr.substring(0, operIndex).trim();
         String rightArg = expr.substring(operIndex + 1).trim();
 
         boolean isRome;
-        if (romanToNumber(leftArg)>-1 && romanToNumber(rightArg)>-1) {
+        if (romanToNumber(leftArg) > -1 && romanToNumber(rightArg) > -1) {
             isRome = true;
         } else if (leftArg.matches("[\\d]{1,2}") && rightArg.matches("[\\d]{1,2}")) {
             isRome = false;
         } else {
-            System.out.println("throws Error: not arabian or not roman both left & right part (between 1 and 10)");
-            return;
+            throw new Exception("not arabian or not roman both left & right part (between 1 and 10)");
         }
 
         String oper = expr.substring(operIndex, operIndex + 1);
         int leftNum = isRome ? romanToNumber(leftArg) : Integer.parseInt(leftArg);
         int rightNum = isRome ? romanToNumber(rightArg) : Integer.parseInt(rightArg);
         if (leftNum < 1 || leftNum > 10 || rightNum < 1 || rightNum > 10) {
-            System.out.println("Numbers must be between 1 and 10");
-            return;
+            throw new Exception("Numbers must be between 1 and 10");
         }
 
         int result = 0;
@@ -58,11 +53,21 @@ public class Main {
         }
 
         if (isRome && result <= 0) {
-            System.out.println("Error: Roman result must be >= 1");
+            throw new Exception("Roman result must be >= 1");
         } else if (isRome) {
-            System.out.println("Result(roman):" + numberToRoman(result));
+            return "Result(roman):" + numberToRoman(result);
         } else {
-            System.out.println("Result(arabian):" + result);
+            return "Result(arabian):" + result;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Input expression, please:");
+        String expr = new Scanner(System.in).nextLine();
+        try {
+            System.out.println(calc(expr));
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
